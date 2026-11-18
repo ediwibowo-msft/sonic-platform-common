@@ -32,6 +32,31 @@ class TestChassisBase:
         assert(chassis.REBOOT_CAUSE_HARDWARE_RESET_FROM_ASIC == "Reset from ASIC")
         assert(chassis.REBOOT_CAUSE_NON_HARDWARE == "Non-Hardware")
 
+    def test_chassis_power_cycle_defaults(self):
+        chassis = ChassisBase()
+        assert chassis.is_chassis_power_cycle_supported() is False
+        with pytest.raises(NotImplementedError):
+            chassis.do_chassis_power_cycle()
+
+    @pytest.mark.parametrize("is_bmc", [False, True])
+    def test_legacy_chassis_power_cycle_unsupported(self, is_bmc):
+        class LegacyChassis(ChassisBase):
+            def is_bmc(self):
+                return is_bmc
+
+        chassis = LegacyChassis()
+        module = mock.Mock()
+        bmc = mock.Mock()
+        chassis._module_list = [module]
+        chassis._bmc = bmc
+
+        assert chassis.is_bmc() is is_bmc
+        assert chassis.is_chassis_power_cycle_supported() is False
+        with pytest.raises(NotImplementedError):
+            chassis.do_chassis_power_cycle()
+        assert module.mock_calls == []
+        assert bmc.mock_calls == []
+
     def test_chassis_base(self):
         chassis = ChassisBase()
         not_implemented_methods = [

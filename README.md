@@ -7,6 +7,21 @@
 
 Collection of Python packages which provide a common interface to platform-specific hardware peripherals in SONiC
 
+### Full-chassis power cycling
+
+`ChassisBase.is_chassis_power_cycle_supported()` provides a non-disruptive
+capability check and defaults to `False`.
+`ChassisBase.do_chassis_power_cycle()` requests a hardware power cycle of the
+entire chassis and raises `NotImplementedError` by default. Vendor platforms
+must override both methods to advertise support.
+
+On BMC-managed platforms, the operation must restart both the BMC and switch
+host. A module-only power cycle or CPU reboot is not a substitute. The request
+returns `True` if successfully issued and `False` if issuance failed; power loss
+may prevent the caller from receiving a return value. Callers must verify
+completion independently rather than treating a `True` return as proof of
+restart. Unsupported platforms must not advertise this capability.
+
 # Contribution guide
 
 All contributors must sign a contribution license agreement (CLA) before contributions can be accepted. This process is now automated via a GitHub bot when submitting new pull request. If the contributor has not yet signed a CLA, the bot will create a comment on the pull request containing a link to electronically sign the CLA.

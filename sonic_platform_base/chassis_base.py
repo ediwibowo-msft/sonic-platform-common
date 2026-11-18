@@ -139,6 +139,39 @@ class ChassisBase(device_base.DeviceBase):
         """
         raise NotImplementedError
 
+    def is_chassis_power_cycle_supported(self):
+        """
+        Reports support for a hardware power cycle of the entire chassis.
+
+        On BMC-managed platforms this must restart both the BMC and switch
+        host. A module-only power cycle or CPU reboot does not qualify.
+        This capability check must not change the power state.
+
+        Returns:
+            bool: True only if do_chassis_power_cycle() is implemented with
+            full-chassis semantics. Unsupported platforms return False.
+        """
+        return False
+
+    def do_chassis_power_cycle(self):
+        """
+        Requests a hardware power cycle of the entire chassis.
+
+        On BMC-managed platforms this must restart both the BMC and switch
+        host. A module-only power cycle or CPU reboot does not qualify.
+        Callers should check is_chassis_power_cycle_supported() first and
+        independently verify completion after issuing the request.
+
+        Returns:
+            bool: True if the request was issued successfully, False if
+            issuance failed. True does not indicate completion. Power loss
+            may prevent the caller from receiving a return value.
+
+        Raises:
+            NotImplementedError: If full-chassis power cycling is unsupported.
+        """
+        raise NotImplementedError
+
     def get_supervisor_slot(self):
         """
         Retrieves the physical-slot of the supervisor-module in the modular
